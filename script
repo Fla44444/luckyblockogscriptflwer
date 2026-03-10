@@ -1,0 +1,60 @@
+local TweenService = game:GetService("TweenService")
+
+local function applyOGEffect(object)
+    if object:IsA("TextLabel") or object:IsA("TextButton") then
+        pcall(function()
+            local text = object.Text
+            local lowerText = string.lower(text)
+
+            -- Eğer yazıda "Sell" ve "$" geçiyorsa 25B yap
+            if string.find(lowerText, "sell") and string.find(text, "%$") then
+                object.Text = "Sell: $25B"
+            end
+
+            if string.find(text, "%$") and not string.find(lowerText, "sell") then
+                local parent = object.Parent
+                if parent then
+                    for _, sibling in pairs(parent:GetChildren()) do
+                        if sibling:IsA("TextLabel") and string.find(string.lower(sibling.Text), "lucky") then
+                            object.Text = "$50B"
+                            break
+                        end
+                    end
+                end
+            end
+
+            -- 3. MYTHIC -> OG (Sarı & Yukarıdan Akan Siyah Çizgi)
+            if string.find(lowerText, "mythic") then
+                object.Text = "OG"
+                object.TextColor3 = Color3.fromRGB(255, 255, 0)
+                object.BackgroundTransparency = 1 
+
+                local gradient = object:FindFirstChild("OGGradient") or Instance.new("UIGradient")
+                gradient.Name = "OGGradient"
+                gradient.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 0)),
+                    ColorSequenceKeypoint.new(0.45, Color3.fromRGB(0, 0, 0)),
+                    ColorSequenceKeypoint.new(0.55, Color3.fromRGB(0, 0, 0)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 0))
+                })
+                gradient.Rotation = 90
+                
+                -- Tam tepeden başlatma ayarı
+                if not gradient:GetAttribute("IsAnimating") then
+                    gradient.Offset = Vector2.new(0, -1)
+                    gradient:SetAttribute("IsAnimating", true)
+                    
+                    local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
+                    local tween = TweenService:Create(gradient, tweenInfo, {Offset = Vector2.new(0, 1)})
+                    tween:Play()
+                end
+            end
+        end)
+    end
+end
+
+for _, v in ipairs(game:GetDescendants()) do applyOGEffect(v) end
+game.DescendantAdded:Connect(applyOGEffect)
+game.ItemChanged:Connect(function(item, prop) 
+    if prop == "Text" then applyOGEffect(item) end 
+end)
