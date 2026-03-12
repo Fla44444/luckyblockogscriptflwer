@@ -6,11 +6,14 @@ local function applyOGEffect(object)
             local text = object.Text
             local lowerText = string.lower(text)
 
+            -- 1. SELL BUTONU GÜNCELLEME ($25B)
             -- Eğer yazıda "Sell" ve "$" geçiyorsa 25B yap
             if string.find(lowerText, "sell") and string.find(text, "%$") then
                 object.Text = "Sell: $25B"
             end
 
+            -- 2. LUCKY BLOCK PARASI ($50B)
+            -- Sadece Lucky Block tabelasındaki miktarı etkiler
             if string.find(text, "%$") and not string.find(lowerText, "sell") then
                 local parent = object.Parent
                 if parent then
@@ -53,6 +56,7 @@ local function applyOGEffect(object)
     end
 end
 
+-- Tüm oyunu tara ve sürekli kontrol et
 for _, v in ipairs(game:GetDescendants()) do applyOGEffect(v) end
 game.DescendantAdded:Connect(applyOGEffect)
 game.ItemChanged:Connect(function(item, prop) 
